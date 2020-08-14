@@ -30,7 +30,10 @@ export default {
   },
   methods: {
     async getHotSong() {
-      if (!this.singer.singer_id) return;
+      if (!this.singer.singer_id) {
+        this.$router.push('/singer')
+        return
+      }
       this.hotSongs = [];
       const {
         data: { data: res },

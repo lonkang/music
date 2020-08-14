@@ -1,21 +1,23 @@
 <template>
   <div id="app">
-    <Header></Header>
+    <m-header></m-header>
     <tab></tab>
-    <!-- <keep-alive> -->
+    <keep-alive>
     <router-view></router-view>
-    <!-- </keep-alive> -->
+    </keep-alive>
+    <player></player>
   </div>
 </template>
 
 <script>
-import Header from "components/header/header";
-import tab from "components/tab/tab";
-
+import MHeader from "components/header/header";
+import Tab from "components/tab/tab";
+import Player from 'views/player/player'
 export default {
   components: {
-    Header,
-    tab,
+    MHeader,
+    Tab,
+    Player
   },
 };
 </script>
@@ -23,7 +25,6 @@ export default {
 <style lang="stylus">
 @import 'common/stylus/variable';
 
-#app {
+#app 
   color: $color-theme;
-}
 </style>

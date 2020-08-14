@@ -18,7 +18,7 @@
     <div class="bg-layer" ref="layer"></div>
     <scroll ref="list" :data="songs" class="list" :probeType="probeType" :listenScroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
-        <songList :songs="songs"></songList>
+        <songList @select="select" :songs="songs"></songList>
       </div>
     </scroll>  
   </div>
@@ -27,7 +27,7 @@
 <script>
 import scroll from 'components/base/scroll/scroll'
 import songList from 'components/song-list/song-list'
-
+import {mapActions} from 'vuex'
 const RESERVED_HEIGHT = 40
 
 export default {
@@ -80,7 +80,16 @@ export default {
     // 监听滚动事件
     scroll(opt) {
       this.scrollY = opt.y
-    }
+    },
+    select(item, index) {
+      this.selectPlay({
+        list: this.songs,
+        index
+      })
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
   },
   watch: {
     scrollY(newY) {
