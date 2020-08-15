@@ -25,8 +25,13 @@ export default {
   components: {
     musicList
   },
-  created() {
+  mounted() {
     this.getHotSong();
+  },
+  watch: {
+    singer() {
+      this.getHotSong()
+    }
   },
   methods: {
     async getHotSong() {

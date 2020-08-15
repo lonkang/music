@@ -38,7 +38,7 @@ export default {
     selectSinger(singer) {
       this.$store.commit('setSinger', singer)
       this.$router.push({
-        path: `/singer-detail/${singer.singer_mid}`
+        path: `/singer/${singer.singer_mid}`
       })
     },
     // 获取分类数据

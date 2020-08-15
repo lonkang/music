@@ -17,7 +17,7 @@
           <div class="middle">
             <div class="middle-l" ref="middleL">
               <div class="cd-wrapper" ref="cdWrapper">
-                <div class="cd">
+                <div class="cd" :class="cdCls">
                   <img class="image" :src="imgsrc()">
                 </div>
               </div>
@@ -28,13 +28,13 @@
               <div class="icon i-left">
                 <i class="icon-sequence"></i>
               </div>
-              <div class="icon i-left">
+              <div class="icon i-left" @click="changeCurrentIndex(-1)" :class="disableCls">
                 <i class="icon-prev"></i>
               </div>
-              <div class="icon i-center">
-                <i class="icon-play"></i>
+              <div @click="togglePlaying" class="icon i-center" :class="disableCls">
+                <i :class="playIcon"></i>
               </div>
-              <div class="icon i-right">
+              <div class="icon i-right" @click="changeCurrentIndex(1)" :class="disableCls">
                 <i class="icon-next"></i>
               </div>
               <div class="icon i-right">
@@ -57,13 +57,19 @@
                 </p>
             </div>
             <div class="control" >
-                <!-- <i :class="miniIcon"></i> -->
+                <i @click.stop="togglePlaying" :class="miniIcon"></i>
             </div>
             <div class="control">
-                <i class="icon-playlist" @click.stop="showPlaylist"></i>
+                <i class="icon-playlist"></i>
             </div>
         </div>
     </transition>
+    <audio 
+      :src="audioSrc" 
+      ref="audio" 
+      @canplay="ready" 
+      @error="error" 
+    ></audio>
   </div>
 </template>
 
@@ -72,6 +78,12 @@ import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 
 export default {
+  data() {
+    return {
+      audioSrc: '', // 歌曲播放地址
+      songReady: false, // 歌曲是在否准备
+    }
+  },
   methods: {
     // 图片地址
     imgsrc() {
@@ -85,76 +97,139 @@ export default {
     open() {
       this.setFullScreen(true)
     },
+    // 切换播放模式
+    togglePlaying() {
+      if(!this.songReady) return 
+      this.playing ? this.setPlaying(false) : this.setPlaying(true)
+    },
     // 动画钩子
     enter(el, done) {
-        const {x, y, scale} = this._getPosAndScale()
-
-        let animation = {
-          0: {
-            transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
-          },
-          60: {
-            transform: `translate3d(0,0,0) scale(1.1)`
-          },
-          100: {
-            transform: `translate3d(0,0,0) scale(1)`
-          }
+      const {x, y, scale} = this._getPosAndScale()
+      let animation = {
+        0: {
+          transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+        },
+        60: {
+          transform: `translate3d(0,0,0) scale(1.1)`
+        },
+        100: {
+          transform: `translate3d(0,0,0) scale(1)`
         }
-        // 添加动画
-        animations.registerAnimation({
-          name: 'move',
-          animation,
-          presets: {
-            duration: 400,
-            easing: 'linear'
-          }
-        })
-        // 运行动画
-        animations.runAnimation(this.$refs.cdWrapper, 'move', done)
-      },
-      afterEnter() {
-        // 删除动画
-        animations.unregisterAnimation('move')
-        this.$refs.cdWrapper.style.animation = ''
-      },
-      // 离开的动画钩子 添加动画
-      leave(el, done) {
-        this.$refs.cdWrapper.style.transition = 'all 0.4s'
-        const {x, y, scale} = this._getPosAndScale()
-        this.$refs.cdWrapper.style['transform'] = `translate3d(${x}px,${y}px,0) scale(${scale})`
-        this.$refs.cdWrapper.addEventListener('transitionend', done)
-      },
-      // 离开之后的动画钩子 清除样式
-      afterLeave() {
-        this.$refs.cdWrapper.style.transition = ''
-        this.$refs.cdWrapper.style['transform'] = ''
-      },
-      // 获取位置和缩放
-      _getPosAndScale() {
-        const targetWidth = 40
-        const paddingLeft = 40
-        const paddingBottom = 30
-        const paddingTop = 80
-        const width = window.innerWidth * 0.8
-        const scale = targetWidth / width
-        const x = -(window.innerWidth / 2 - paddingLeft)
-        const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
-        return {
-          x,
-          y,
-          scale
+      }
+      // 添加动画
+      animations.registerAnimation({
+        name: 'move',
+        animation,
+        presets: {
+          duration: 400,
+          easing: 'linear'
         }
-      },
+      })
+      // 运行动画
+      animations.runAnimation(this.$refs.cdWrapper, 'move', done)
+    },
+    afterEnter() {
+      // 删除动画
+      animations.unregisterAnimation('move')
+      this.$refs.cdWrapper.style.animation = ''
+    },
+    // 离开的动画钩子 添加动画
+    leave(el, done) {
+      this.$refs.cdWrapper.style.transition = 'all 0.4s'
+      const {x, y, scale} = this._getPosAndScale()
+      this.$refs.cdWrapper.style['transform'] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+      this.$refs.cdWrapper.addEventListener('transitionend', done)
+    },
+    // 离开之后的动画钩子 清除样式
+    afterLeave() {
+      this.$refs.cdWrapper.style.transition = ''
+      this.$refs.cdWrapper.style['transform'] = ''
+    },
+    // 获取位置和缩放
+    _getPosAndScale() {
+      const targetWidth = 40
+      const paddingLeft = 40
+      const paddingBottom = 30
+      const paddingTop = 80
+      const width = window.innerWidth * 0.8
+      const scale = targetWidth / width
+      const x = -(window.innerWidth / 2 - paddingLeft)
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
+      return {
+        x,
+        y,
+        scale
+      }
+    },
+    // 获取歌曲地址
+    async getAudioSrc(mid) {
+      this.audioSrc = ''
+      const { data: res } = await this.$http.get('/api/song/urls?id=' + mid)
+      if(JSON.stringify(res.data) == {}) { // 没有播放地址
+          this.audioSrc = ''
+      } else {
+          this.audioSrc = res.data[mid]
+      }
+    },
+    // 音频加载完之后，可以播放
+    ready() {
+      this.songReady = true
+      this.setPlaying(true)
+    // 加载成功就可以播放
+      this.$refs.audio.play()
+    },
+    // 音频加载错误
+    error() {
+      this.songReady = false
+    },
+    changeCurrentIndex(i) {
+      let index = this.currentIndex + i
+      if (index < 0) index = this.playList.length - 1
+      if (index === this.playList.length) index = 0
+      this.setCurrentIndex(index)
+    },
     ...mapMutations([
-      'setFullScreen'
+      'setFullScreen',
+      'setPlaying',
+      'setCurrentIndex'
     ])
   },
   computed: {
+    // 图片旋转
+    cdCls() {
+      return this.playing? 'play' : 'play pause'
+    },
+    // 为小按钮的时候改变样式
+    miniIcon() {
+      return this.playing? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    // 动态改变播放状态的时候改变操作按钮的样式
+    playIcon() {
+      return this.playing? 'icon-pause' : 'icon-play'
+    },
+    disableCls() {
+      return this.songReady ? '' : 'disable'
+    },
     ...mapGetters([
       'playList',
       'fullScreen',
-      'currentSong'
+      'currentSong',
+      'playing',
+      'currentIndex'
     ])
+  },
+  watch: {
+    currentSong() {
+      this.getAudioSrc(this.currentSong.mid)
+    },
+    playing() {
+      const audio = this.$refs.audio
+      // 判断获取播放地址有没有获取完成
+      if(!this.songReady) return 
+      this.$nextTick(() => {
+        this.playing ? audio.play() : audio.pause()
+      })
+    }
   }
 }
 </script>
