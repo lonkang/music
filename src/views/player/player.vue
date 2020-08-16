@@ -24,9 +24,17 @@
             </div>
           </div>
           <div class="bottom">
+            <!-- 进度条的使用 -->
+            <div class="progress-wrapper">
+              <span class="time time-l">{{forMat(currentTime)}}</span>
+              <div class="progress-bar-wrapper">
+                <progress-bar @precentChange="precentChange" :precent="precent"></progress-bar>
+              </div>
+              <span class="time time-r">{{forMat(currentSong.interval)}}</span>
+            </div>
             <div class="operators">
-              <div class="icon i-left">
-                <i class="icon-sequence"></i>
+              <div class="icon i-left" @click="changeMode">
+                <i :class="iconMode"></i>
               </div>
               <div class="icon i-left" @click="changeCurrentIndex(-1)" :class="disableCls">
                 <i class="icon-prev"></i>
@@ -57,7 +65,9 @@
                 </p>
             </div>
             <div class="control" >
-                <i @click.stop="togglePlaying" :class="miniIcon"></i>
+              <progress-circle :precent="precent">
+                <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+              </progress-circle>
             </div>
             <div class="control">
                 <i class="icon-playlist"></i>
@@ -68,7 +78,9 @@
       :src="audioSrc" 
       ref="audio" 
       @canplay="ready" 
-      @error="error" 
+      @error="error"
+      @timeupdate="updateTime"
+      @ended="end"
     ></audio>
   </div>
 </template>
@@ -76,12 +88,21 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
+import { playMode } from 'common/js/config.js'
+import { shuffle } from 'common/js/util.js'
 
+import progressBar from 'components/base/progress-bar/progress-bar'
+import progressCircle from 'components/base/progress-circle/progress-circle'
 export default {
+  components: {
+    progressBar,
+    progressCircle
+  },
   data() {
     return {
       audioSrc: '', // 歌曲播放地址
       songReady: false, // 歌曲是在否准备
+      currentTime: 0, // 音乐当前播放的时间
     }
   },
   methods: {
@@ -182,16 +203,68 @@ export default {
     error() {
       this.songReady = false
     },
+    // 播放完之后
+    end() {
+      if (this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.changeCurrentIndex(1)
+      }
+    },
+    // 循环播放
+    loop() {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
+    // 上一曲下一曲
     changeCurrentIndex(i) {
       let index = this.currentIndex + i
       if (index < 0) index = this.playList.length - 1
       if (index === this.playList.length) index = 0
       this.setCurrentIndex(index)
     },
+    // 改变播放时间
+    updateTime(e) {
+      // 获取到当前播放的时间
+      this.currentTime = e.target.currentTime
+    },
+    // 格式化数据
+    forMat(time) {
+      time = time | 0
+      const min = time / 60 | 0
+      const sec = time % 60 | 0
+      if (sec < 10) return `${min}:0${sec}`
+      return `${min}:${sec}`
+    },
+    // 当拖动进度条的时候 修改比例
+    precentChange(percent) {
+      this.$refs.audio.currentTime = this.currentSong.interval * percent
+      if(!this.playing) this.togglePlaying()
+    },
+    // 改变播放模式
+    changeMode() {
+      const mode = (this.mode + 1) % 3
+      this.setMode(mode)
+      let list = null 
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.setPlayList(list)
+    },
+    resetCurrentIndex(list) {
+      let index = list.findIndex(item => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
+    },
     ...mapMutations([
       'setFullScreen',
       'setPlaying',
-      'setCurrentIndex'
+      'setCurrentIndex',
+      'setMode',
+      'setPlayList'
     ])
   },
   computed: {
@@ -207,19 +280,30 @@ export default {
     playIcon() {
       return this.playing? 'icon-pause' : 'icon-play'
     },
+    iconMode() {
+      return this.mode === playMode.sequence ? 'icon-sequence': this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
+    // 当还没有加载完的时候禁止播放
     disableCls() {
       return this.songReady ? '' : 'disable'
+    },
+    // 获取到当前播放和总时间的比例
+    precent() {
+      return this.currentTime / this.currentSong.interval
     },
     ...mapGetters([
       'playList',
       'fullScreen',
       'currentSong',
       'playing',
-      'currentIndex'
+      'currentIndex',
+      'mode',
+      'sequenceList'
     ])
   },
   watch: {
-    currentSong() {
+    currentSong(newSong, oldSong) {
+      if(newSong.id === oldSong.id) return
       this.getAudioSrc(this.currentSong.mid)
     },
     playing() {
