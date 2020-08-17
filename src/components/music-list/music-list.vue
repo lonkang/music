@@ -31,10 +31,12 @@
 import scroll from 'components/base/scroll/scroll'
 import loading from 'components/base/loading/loading'
 import songList from 'components/song-list/song-list'
+import {playListMixin} from 'common/js/mixin'
 import {mapActions} from 'vuex'
 const RESERVED_HEIGHT = 40
 
 export default {
+  mixins: [playListMixin],
   components: {
     scroll,
     songList,
@@ -78,6 +80,12 @@ export default {
     },
   },
   methods: {
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      // list是个vue components，.$el取元素
+      this.$refs.list.$el.style.bottom = bottom
+      this.$refs.list.refresh()
+    },
     // 返回按钮
     back() {
         this.$router.back()

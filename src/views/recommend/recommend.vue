@@ -17,9 +17,11 @@
 import scroll from "components/base/scroll/scroll";
 import loading from "components/base/loading/loading";
 
+import {playListMixin} from 'common/js/mixin'
 import slider from "./components/slider";
 import disc from "./components/disc";
 export default {
+  mixins: [playListMixin],
   components: {
     slider,
     scroll,
@@ -37,6 +39,11 @@ export default {
     this.getDiscList();
   },
   methods: {
+    handlePlaylist(playList) {
+      const bottom = playList.length > 0 ? '60px' : ''
+      this.$refs.recommend.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     imgLoad() {
       this.$refs.scroll.refresh();
     },

@@ -1,5 +1,5 @@
 <template>
-  <div class="singer">
+  <div class="singer" ref="singer">
     <singerCaterogy :categoryList="categoryList" @categoryClick="getSingerList"></singerCaterogy>
     <scroll :data="singerList" class="singer-scroll" ref="scroll">
       <singerLists :singerList="singerList" @selectSinger="selectSinger"></singerLists>
@@ -14,9 +14,11 @@
 import singerCaterogy from "./components/singerCategory";
 import singerLists from "./components/singerList";
 
+import {playListMixin} from 'common/js/mixin'
 import loading from "components/base/loading/loading";
 import scroll from "components/base/scroll/scroll";
 export default {
+  mixins: [playListMixin],
   components: {
     singerCaterogy,
     singerLists,
@@ -34,6 +36,11 @@ export default {
     this.getSingerList();
   },
   methods: {
+    handlePlaylist(playList) {
+      const bottom = playList.length > 0 ? '60px' : ''
+      this.$refs.singer.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     // 选择歌手
     selectSinger(singer) {
       this.$store.commit('setSinger', singer)
