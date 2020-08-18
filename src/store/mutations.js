@@ -23,8 +23,17 @@ const mutations = {
   setMode(state, mode) {
     state.mode = mode
   },
+  // 改变播放模式
   setCurrentIndex(state, index) {
     state.currentIndex = index
+  },
+  // 设置热门歌曲
+  setDisc(state, list) {
+    state.disc = list
+  },
+  // 设置热门歌曲
+  setTopList(state, list) {
+    state.topList = list
   }
 }
 export default mutations

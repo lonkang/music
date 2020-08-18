@@ -15,6 +15,11 @@ const routes = [
     component: () => import('views/recommend/recommend.vue')
   },
   {
+    path: '/songList/:id',
+    name: 'songList',
+    component: () => import('components/song-detail/song-detail')
+  },
+  {
     path: '/singer',
     name: 'singer',
     component: () => import('views/singer/singer.vue')
@@ -23,6 +28,11 @@ const routes = [
     path: '/rank',
     name: 'rank',
     component: () => import('views/rank/rank.vue')
+  },
+  {
+    path: '/topList/:id',
+    name: 'topList',
+    component: () => import('components/top-list/top-list')
   },
   {
     path: '/search',

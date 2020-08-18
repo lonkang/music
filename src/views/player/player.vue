@@ -28,6 +28,10 @@
                 <img class="image" :src="imgsrc()" />
               </div>
             </div>
+            <!-- 当前播放的歌词 -->
+            <div class="playing-lyric-wrapper">
+                <div class="playing-lyric">{{playingLyric}}</div>
+            </div>
           </div>
           <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
             <div class="lyric-wrapper" >
@@ -135,6 +139,7 @@ export default {
       currentLyric: null, // 歌词
       currentLineNum: 0, // 当前播放的歌词
       currentShow: 'cd', // 当前显示的分页
+      playingLyric: '', // 显示的歌词
     };
   },
   created() {

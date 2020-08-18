@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import {mapMutations} from 'vuex'
 export default {
   props: {
     discList: {
@@ -21,12 +22,16 @@ export default {
   },
   methods: {
     selectItem(item) {
-      console.log(item);
-      // this.$router.push({
-      //   path: `/recommend/${item.dissid}`,
-      // });
+      console.log(item)
+      this.setDisc(item)
+      this.$router.push({
+        path: `/songList/${item.content_id}`,
+      });
     },
-  },
+    ...mapMutations([
+      'setDisc' 
+    ])
+  }  
 };
 </script>
 

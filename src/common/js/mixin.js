@@ -7,14 +7,14 @@ export const playListMixin = {
     ])
   },
   mounted() {
-    this.handlePlaylist(this.playList)
+    this.handlePlayList(this.playList)
   },
   activated() {
-    this.handlePlaylist(this.playList)
+    this.handlePlayList(this.playList)
   },
   watch: {
     playlist(newVal) {
-      this.handlePlaylist(newVal)
+      this.handlePlayList(newVal)
     }
   },
   methods: {

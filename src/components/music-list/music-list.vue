@@ -18,7 +18,7 @@
     <div class="bg-layer" ref="layer"></div>
     <scroll ref="list" :data="songs" class="list" :probeType="probeType" :listenScroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
-        <songList @select="select" :songs="songs"></songList>
+        <songList v-bind="$attrs" @select="select" :songs="songs"></songList>
       </div>
     </scroll>
     <div v-show="!songs.length" class="loading-container">
@@ -32,7 +32,7 @@ import scroll from 'components/base/scroll/scroll'
 import loading from 'components/base/loading/loading'
 import songList from 'components/song-list/song-list'
 import {playListMixin} from 'common/js/mixin'
-import {mapActions} from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 const RESERVED_HEIGHT = 40
 
 export default {
@@ -42,6 +42,7 @@ export default {
     songList,
     loading
   },
+  inheritAttrs: false, 
   data(){
     return {
       scrollY: 0
@@ -78,10 +79,13 @@ export default {
     bgStyle() {
       return `background-image: url(${this.bgImg})`;
     },
+    ...mapGetters([
+      'playList'
+    ])
   },
   methods: {
-    handlePlaylist(playlist) {
-      const bottom = playlist.length > 0 ? '60px' : ''
+    handlePlayList(playList) {
+      const bottom = playList.length > 0 ? '60px' : ''
       // list是个vue components，.$el取元素
       this.$refs.list.$el.style.bottom = bottom
       this.$refs.list.refresh()
@@ -113,6 +117,9 @@ export default {
     ])
   },
   watch: {
+    playList(newVal) {
+      this.handlePlayList(newVal)
+    },
     scrollY(newY) {
       let translateY = Math.max(this.minTranslateY, newY)
       let zIndex = 0

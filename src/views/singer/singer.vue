@@ -36,7 +36,7 @@ export default {
     this.getSingerList();
   },
   methods: {
-    handlePlaylist(playList) {
+    handlePlayList(playList) {
       const bottom = playList.length > 0 ? '60px' : ''
       this.$refs.singer.style.bottom = bottom
       this.$refs.scroll.refresh()
