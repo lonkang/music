@@ -148,6 +148,9 @@ export default {
   methods: {
     // 图片地址
     imgsrc() {
+      if (!this.currentSong.album) {
+        return 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=333375570,2372716667&fm=26&gp=0.jpg'
+      }
       return JSON.stringify(this.currentSong) == "{}"
         ? ""
         : `https://y.gtimg.cn/music/photo_new/T002R300x300M000${this.currentSong.album.mid}.jpg`;
@@ -460,6 +463,7 @@ export default {
           this.playingLyric = ''
           this.currentLineNum = 0
       }
+      console.log(this.currentSong.mid)
       this.getAudioSrc(this.currentSong.mid);
       // 清理定时器
       clearTimeout(this.timer)
