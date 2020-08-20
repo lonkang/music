@@ -34,6 +34,10 @@ const mutations = {
   // 设置热门歌曲
   setTopList(state, list) {
     state.topList = list
+  },
+  // 添加历史记录
+  setSearchHistory(state, list) {
+    state.searchHistory = list
   }
 }
 export default mutations

@@ -1,6 +1,6 @@
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
-
+import { saveSearch , deleteSearch, clearSearch} from 'common/js/cache'
 function findIndex(list, songs) {
   return list.findIndex(item => {
     return item.id === songs.id
@@ -30,7 +30,7 @@ export const randomPlay = function ({ commit }, { list }) {
   commit('setPlaying', true)
   commit('setFullScreen', true)
 }
-export const insertSong = function ({commit, state}, song) {
+export const insertSong = function ({ commit, state }, song) {
   let playList = state.playList.slice()
   let sequenceList = state.sequenceList.slice()
   let currentIndex = state.currentIndex
@@ -72,4 +72,15 @@ export const insertSong = function ({commit, state}, song) {
   commit('setCurrentIndex', currentIndex)
   commit('setPlaying', true)
   commit('setFullScreen', true)
+}
+export const saveSearchHistory = function ({ commit }, query) {
+  commit('setSearchHistory', saveSearch(query))
+}
+// 删除一个
+export const deleteSearchHistory = function ({commit}, query) {
+  commit('setSearchHistory', deleteSearch(query))
+}
+// 清理全部
+export const clearSearchHistory = function ({commit}) {
+  commit('setSearchHistory', clearSearch())
 }

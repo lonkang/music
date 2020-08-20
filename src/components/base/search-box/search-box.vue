@@ -1,18 +1,19 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input type="text" v-model="query" class="box" :placeholder="placeholder" />
+    <input ref="input" type="text" v-model="query" class="box" :placeholder="placeholder" />
     <i class="icon-dismiss" @click="clear" v-show="query"></i>
   </div>
 </template>
 
 <script>
+import {debounce} from 'common/js/util'
 export default {
   props: {
     placeholder: {
       type: String,
       default: "搜索歌曲、歌手",
-    },
+    }
   },
   data() {
     return {
@@ -20,16 +21,20 @@ export default {
     }
   },
   created() {
-    this.$watch('query', (newQuery) => {
+    this.$watch('query', debounce((newQuery) => {
       this.$emit('query', newQuery)
-    })
+    }))
   },
   methods: {
     clear() {
       this.query = ''
+      this.$emit('clear')
     },
     setQuery(query) {
       this.query = query
+    },
+    blur() {
+      this.$refs.input.blur()
     }
   }
 };

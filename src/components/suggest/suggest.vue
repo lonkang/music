@@ -20,11 +20,15 @@
         </div>
       </div>
     </div>
+    <!-- <div class="no-result-wrapper" v-show="result.length == 0">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>-->
   </div>
 </template>
 
 <script>
 import { mapMutations, mapActions } from "vuex";
+
 export default {
   data() {
     return {
@@ -38,6 +42,9 @@ export default {
     },
   },
   methods: {
+    listScroll() {
+      this.$emit('listScroll')
+    },
     querySearch() {},
     selectItem(item, list) {
       if (item.name === "歌手") {
@@ -55,10 +62,11 @@ export default {
         this.setSinger(singer[0]);
       }
       if (item.name === "单曲") {
-        console.log(list)
-        this.insertSong(list)
+        console.log(list);
+        this.insertSong(list);
         // this.searchOne(list);
       }
+      this.$emit('select', item)
       // if (item.name === "专辑") {
       //   let album = [];
       //   album.push(list);
@@ -92,12 +100,13 @@ export default {
       // this.local();
     },
     async getSearch(query) {
+      if (!query) return;
       const {
         data: { data: res },
       } = await this.$http.get("/api/search/quick?key=" + query);
-      if (res.album.itemlist.length == 0) return;
+      // if (res.album.itemlist.length == 0) return;
       this.result = res;
-      console.log(res);
+      this.$emit('getResult', res)
     },
     async searchOne() {
       // const { data: res } = await this.$http.get("/api/song/urls?id=" + mid);
@@ -113,7 +122,7 @@ export default {
 };
 </script>
 <style lang="stylus" scoped>
-@import '~common/stylus/variable.styl';
+@import '../../common/stylus/variable.styl';
 
 .quickSearch {
   position: fixed;
@@ -159,6 +168,13 @@ export default {
         }
       }
     }
+  }
+
+  .no-result-wrapper {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 </style>

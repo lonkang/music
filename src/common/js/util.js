@@ -12,3 +12,14 @@ export function shuffle(arr) {
   }
   return _arr
 }
+export function debounce(fun, time = 200) {
+  let timer
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      fun.call(this, ...args)
+    }, time)
+  }
+}

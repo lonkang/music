@@ -1,11 +1,12 @@
 <template>
   <div class="search">
     <div class="search-box-wrapper">
-      <search-box ref="searchBox" @query="changeQuery"></search-box>
+      <search-box :hotSearch="hotSearch" @clear="clear" ref="searchBox" @query="changeQuery"></search-box>
     </div>
-    <div class="shortcut-wrapper" v-show="!query">
-      <div class="shortcut">
-        <div class="hot-key">
+    <div class="shortcut-wrapper" ref="shortcutWrapper" v-show="!query">
+      <scroll :data="shortcut" ref="scroll" class="shortcut">
+        <div>
+          <div class="hot-key">
           <h1 class="title">热门搜索</h1>
           <ul>
             <li class="item" v-for="item in hotSearch" :key="item.n" @click="addQuery(item.k)">
@@ -13,32 +14,58 @@
             </li>
           </ul>
         </div>
-      </div>
+        <div class="search-history" v-show="searchHistory.length">
+          <h1 class="title">
+            <span class="text">搜索历史</span>
+            <span class="clear" @click="showConfirm">
+              <i class="icon-clear"></i>
+            </span>
+          </h1>
+          <search-list @select="addQuery" @delete="deleteSearchHistory" :searches="searchHistory"></search-list>
+        </div>
+        </div>
+      </scroll>
     </div>
-    <div v-show="query" class="search-result">
-      <suggest :query="query"></suggest>
+    <div :data="result" @beforeScroll="listScroll" v-show="query" class="search-result">
+      <suggest @getResult="getResult" @select="select" :query="query"></suggest>
     </div>
+    <confirm ref="confirm" @confirm="clearSearchHistory" text="是否清空所有搜索历史" confirmBtnText="清空"></confirm>
   </div>
 </template>
 
 <script>
 import searchBox from 'components/base/search-box/search-box'
 import suggest from 'components/suggest/suggest'
+import scroll from 'components/base/scroll/scroll'
+import searchList from 'components/base/search-list/search-list'
+import confirm from 'components/base/confirm/confirm'
+import {playListMixin} from 'common/js/mixin'
+import {mapActions, mapGetters} from 'vuex'
 export default {
+  mixins: [playListMixin],
   components: {
     searchBox,
-    suggest
+    suggest,
+    scroll,
+    searchList,
+    confirm
   },
   data() {
     return {
       hotSearch: [],
-      query: ''
+      query: '',
+      result: []
     }
   },
   mounted() {
     this.getHotSearch()
   },
   methods: {
+    handlePlayList(playList) {
+      const bottom = playList.length > 0 ? '60px' : ''
+      this.$refs.shortcutWrapper.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     addQuery(query) {
       this.$refs.searchBox.setQuery(query)
     },
@@ -47,9 +74,44 @@ export default {
       this.hotSearch = res.slice(0, 10)
     },
     changeQuery(query) {
-      console.log(query)
       this.query = query
+    },
+    listScroll() {
+      this.$refs.searchBox.blur()
+    },
+    getResult(list) {
+      console.log(list)
+      this.result = [list]
+    },
+    select() {
+      this.saveSearchHistory(this.query)
+    },
+    clear(){
+      this.handlePlayList(this.playList)
+    },
+    showConfirm() {
+      this.$refs.confirm.show()
+    },
+    ...mapActions([
+      'saveSearchHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
+    ]),
+  },
+  watch: {
+    query(newQuery) {
+      if(!newQuery) {
+        setTimeout(() => {
+          this.$refs.scroll.refresh()
+        })
+      }
     }
+  },
+  computed: {
+    shortcut() {
+      return this.hotSearch.concat(this.searchHistory)
+    },
+    ...mapGetters(['searchHistory'], 'playList')
   }
 };
 </script>
@@ -89,6 +151,7 @@ export default {
           .title
             display: flex
             align-items: center
+            justify-content space-between
             height: 40px
             font-size: $font-size-medium
             color: $color-text-l
@@ -103,5 +166,6 @@ export default {
       position: fixed
       width: 100%
       top: 178px
+      height calc(100vh - 178px)
       bottom: 0
 </style>
