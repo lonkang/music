@@ -99,11 +99,12 @@
             <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <play-list ref="playList"></play-list>
     <audio
       :src="audioSrc"
       ref="audio"
@@ -119,17 +120,20 @@
 import { mapGetters, mapMutations } from "vuex";
 import animations from "create-keyframe-animation";
 import { playMode } from "common/js/config.js";
-import { shuffle } from "common/js/util.js";
+import {playerMixin} from 'common/js/mixin'
 import Lyric from "lyric-parser";
 
+import playList from 'components/play-list/play-list'
 import scroll from 'components/base/scroll/scroll'
 import progressBar from "components/base/progress-bar/progress-bar";
 import progressCircle from "components/base/progress-circle/progress-circle";
 export default {
+  mixins: [playerMixin],
   components: {
     progressBar,
     progressCircle,
-    scroll
+    scroll,
+    playList
   },
   data() {
     return {
@@ -332,26 +336,6 @@ export default {
         this.currentLyric.seek(currentTime * 1000)
       }
     },
-    // 改变播放模式
-    changeMode() {
-      const mode = (this.mode + 1) % 3;
-      this.setMode(mode);
-      let list = null;
-      if (mode === playMode.random) {
-        list = shuffle(this.sequenceList);
-      } else {
-        list = this.sequenceList;
-      }
-      this.setPlayList(list);
-      this.resetCurrentIndex(list)
-    },
-    // 修改播放的index
-    resetCurrentIndex(list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id;
-      });
-      this.setCurrentIndex(index);
-    },
     middleTouchStart(e) {
       this.touch.initiated = true
       const touch = e.touches[0]
@@ -405,12 +389,12 @@ export default {
         this.$refs.middleL.style['transitionDuration'] = `${time}ms`
         
     },
+    showPlayList() {
+      this.$refs.playList.show()
+    },
     ...mapMutations([
       "setFullScreen",
-      "setPlaying",
-      "setCurrentIndex",
-      "setMode",
-      "setPlayList",
+      'setPlaying'
     ]),
   },
   computed: {
@@ -426,13 +410,6 @@ export default {
     playIcon() {
       return this.playing ? "icon-pause" : "icon-play";
     },
-    iconMode() {
-      return this.mode === playMode.sequence
-        ? "icon-sequence"
-        : this.mode === playMode.loop
-        ? "icon-loop"
-        : "icon-random";
-    },
     // 当还没有加载完的时候禁止播放
     disableCls() {
       return this.songReady ? "" : "disable";
@@ -442,17 +419,14 @@ export default {
       return this.currentTime / this.currentSong.interval;
     },
     ...mapGetters([
-      "playList",
       "fullScreen",
-      "currentSong",
       "playing",
-      "currentIndex",
-      "mode",
-      "sequenceList",
+      "currentIndex"
     ]),
   },
   watch: {
     currentSong(newSong, oldSong) {
+      if (!newSong.id) return
       if (newSong.id === oldSong.id) return;
       
       // 防止歌词跳动
