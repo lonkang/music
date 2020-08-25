@@ -100,6 +100,7 @@ export default {
     },
     // 随机选择歌曲
     select(item, index) {
+      console.log(item)
       this.selectPlay({
         list: this.songs,
         index

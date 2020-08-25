@@ -1,13 +1,14 @@
 <template>
   <div class="song-list">
     <ul>
-      <li class="item" @click="selectItem(item, index)" v-for="(item, index) in songs" :key="item.id">
+      <li class="item" @click="selectItem(item, index)" v-for="(item, index) in songs" :key="index">
         <div class="rank" v-show="$attrs.rank">
           <span :class="getRankCls(index)">{{getRankText(index)}}</span>
         </div>
         <div class="content">
           <h2 class="name">{{item.name}}</h2>
-          <p class="desc">{{getDesc(item)}}</p>
+          <p class="desc" v-if="item.singer[0].name">{{item.singer[0].name}}</p>
+          <p class="desc" v-else>{{item.singer}}</p>
         </div>
       </li>
     </ul>

@@ -22,7 +22,7 @@ export default {
       default: false,
     },
     data: {
-      type: Array,
+      type: [Array, Object],
       default: null,
     },
     pullup: {

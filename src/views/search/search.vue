@@ -26,8 +26,8 @@
         </div>
       </scroll>
     </div>
-    <div :data="result" @beforeScroll="listScroll" v-show="query" class="search-result">
-      <suggest @getResult="getResult" @select="select" :query="query"></suggest>
+    <div v-show="query" class="search-result">
+      <suggest @getResult="getResult" @select="saveSearch" :query="query"></suggest>
     </div>
     <confirm ref="confirm" @confirm="clearSearchHistory" text="是否清空所有搜索历史" confirmBtnText="清空"></confirm>
   </div>
@@ -39,10 +39,10 @@ import suggest from 'components/suggest/suggest'
 import scroll from 'components/base/scroll/scroll'
 import searchList from 'components/base/search-list/search-list'
 import confirm from 'components/base/confirm/confirm'
-import {playListMixin} from 'common/js/mixin'
+import {playListMixin, searchMixin} from 'common/js/mixin'
 import {mapActions, mapGetters} from 'vuex'
 export default {
-  mixins: [playListMixin],
+  mixins: [playListMixin, searchMixin],
   components: {
     searchBox,
     suggest,
@@ -53,7 +53,6 @@ export default {
   data() {
     return {
       hotSearch: [],
-      query: '',
       result: []
     }
   },
@@ -66,15 +65,9 @@ export default {
       this.$refs.shortcutWrapper.style.bottom = bottom
       this.$refs.scroll.refresh()
     },
-    addQuery(query) {
-      this.$refs.searchBox.setQuery(query)
-    },
     async getHotSearch() {
       const {data: {data: res}} = await this.$http.get('/api/search/hot')
       this.hotSearch = res.slice(0, 10)
-    },
-    changeQuery(query) {
-      this.query = query
     },
     listScroll() {
       this.$refs.searchBox.blur()
@@ -82,9 +75,6 @@ export default {
     getResult(list) {
       console.log(list)
       this.result = [list]
-    },
-    select() {
-      this.saveSearchHistory(this.query)
     },
     clear(){
       this.handlePlayList(this.playList)
@@ -111,7 +101,7 @@ export default {
     shortcut() {
       return this.hotSearch.concat(this.searchHistory)
     },
-    ...mapGetters(['searchHistory'], 'playList')
+    ...mapGetters(['searchHistory', 'playList'])
   }
 };
 </script>

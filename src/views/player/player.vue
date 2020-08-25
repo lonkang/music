@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import animations from "create-keyframe-animation";
 import { playMode } from "common/js/config.js";
 import {playerMixin} from 'common/js/mixin'
@@ -278,6 +278,7 @@ export default {
       this.setPlaying(true);
       // 加载成功就可以播放
       this.$refs.audio.play();
+      this.savePlayHistory(this.currentSong)
     },
     // 音频加载错误
     error() {
@@ -326,7 +327,8 @@ export default {
     },
     // 当拖动进度条的时候 修改比例
     precentChange(percent) {
-      let currentTime = this.currentSong.interval * percent;
+      // 判断信息里有没有歌曲时长有就拿 没有就获取audio中的歌曲时长
+      let currentTime = this.currentSong.interval ? this.currentSong.interval * percent : this.$refs.audio.duration * percent;
       this.$refs.audio.currentTime = currentTime
       if (!this.playing) {
         this.togglePlaying();
@@ -396,6 +398,9 @@ export default {
       "setFullScreen",
       'setPlaying'
     ]),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   computed: {
     // 图片旋转
@@ -416,13 +421,13 @@ export default {
     },
     // 获取到当前播放和总时间的比例
     precent() {
-      return this.currentTime / this.currentSong.interval;
+      return this.currentTime / this.currentSong.interval ? this.currentTime / this.currentSong.interval: 0;
     },
     ...mapGetters([
       "fullScreen",
       "playing",
       "currentIndex"
-    ]),
+    ])
   },
   watch: {
     currentSong(newSong, oldSong) {
@@ -437,7 +442,6 @@ export default {
           this.playingLyric = ''
           this.currentLineNum = 0
       }
-      console.log(this.currentSong.mid)
       this.getAudioSrc(this.currentSong.mid);
       // 清理定时器
       clearTimeout(this.timer)

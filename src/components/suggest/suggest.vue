@@ -20,9 +20,6 @@
         </div>
       </div>
     </div>
-    <!-- <div class="no-result-wrapper" v-show="result.length == 0">
-      <no-result title="抱歉，暂无搜索结果"></no-result>
-    </div>-->
   </div>
 </template>
 
@@ -128,9 +125,11 @@ export default {
   position: fixed;
   margin: 0 20px;
   width: calc(100% - 40px);
+  height 65vh
   color: $color-text-d;
   z-index: 2;
   background-color: $color-highlight-background;
+  overflow hidden
 
   .quick {
     .search_query {
