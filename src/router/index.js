@@ -43,6 +43,10 @@ const routes = [
   {
     path: '/singer/:mid',
     component: () => import('components/singer-detail/singer-detail.vue')
+  },
+  {
+    path: '/user',
+    component: () => import('components/user-center/user-center')
   }
 ]
 

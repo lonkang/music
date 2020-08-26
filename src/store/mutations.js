@@ -29,6 +29,7 @@ const mutations = {
   },
   // 设置热门歌曲
   setDisc(state, list) {
+    console.log(list)
     state.disc = list
   },
   // 设置热门歌曲
@@ -41,6 +42,9 @@ const mutations = {
   },
   setPlayHistory(state, history) {
     state.playHistory = history
+  },
+  setFavoriteList(state, list) {
+    state.favoriteList = list
   }
 }
 export default mutations

@@ -1,6 +1,6 @@
 <template>
   <transition name="slide">
-    <musicList :title="title" :bgImg="bgImg" :songs="songs"></musicList>
+    <music-list :title="title" :bgImg="bgImg" :songs="songs"></music-list>
   </transition>
 </template>
 
@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     async getSongListDetail() {
-      // console.log(this.disc.content_id)
+      console.log(this.disc)
       if (!this.disc.content_id) {
         this.$router.back();
         return;
@@ -53,7 +53,7 @@ export default {
     bgImg() {
       return this.disc.cover;
     },
-    ...mapGetters(["disc"]),
+    ...mapGetters(['disc']),
   },
 };
 </script>

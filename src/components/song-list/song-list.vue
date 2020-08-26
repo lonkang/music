@@ -20,9 +20,6 @@ export default {
   props: {
     songs: Array
   },
-  mounted() {
-    console.log(this.$attrs)
-  },
   inheritAttrs: false,
   methods: {
     // 获取详细

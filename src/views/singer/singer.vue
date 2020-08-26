@@ -2,7 +2,7 @@
   <div class="singer" ref="singer">
     <singerCaterogy :categoryList="categoryList" @categoryClick="getSingerList"></singerCaterogy>
     <scroll :data="singerList" class="singer-scroll" ref="scroll">
-      <singerLists :singerList="singerList" @selectSinger="selectSinger"></singerLists>
+      <singer-lists :singerList="singerList" @selectSinger="selectSinger"></singer-lists>
     </scroll>
     <div class="loading-container" v-if="!singerList.length">
       <loading></loading>

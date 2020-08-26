@@ -22,11 +22,12 @@ export default {
   },
   methods: {
     selectItem(item) {
-      console.log(item)
-      this.setDisc(item)
-      this.$router.push({
-        path: `/songList/${item.content_id}`,
-      });
+      if(item.content_id) {
+        this.setDisc(item)
+        this.$router.push({
+          path: `/songList/${item.content_id}`,
+        });
+      }
     },
     ...mapMutations([
       'setDisc' 

@@ -6,7 +6,7 @@
         <h1 class="list-title">热门歌单推荐</h1>
         <disc :discList="discList"></disc>
       </div>
-      <div class="loading-container" v-if="!discList.length">
+      <div class="loading-container" v-if="discList.length === 0">
         <loading></loading>
       </div>
     </scroll>

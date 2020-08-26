@@ -1,6 +1,6 @@
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
-import { saveSearch, deleteSearch, clearSearch, savePlay } from 'common/js/cache'
+import { saveSearch, deleteSearch, clearSearch, savePlay, saveFavorite, deleteFavorite } from 'common/js/cache'
 function findIndex(list, songs) {
   return list.findIndex(item => {
     return item.id === songs.id
@@ -114,7 +114,15 @@ export const deleteSongList = function ({ commit }) {
   commit('setCurrentIndex', -1)
   commit('setPlaying', false)
 }
-
+// 保存历史记录
 export const savePlayHistory = function ({ commit }, song) {
   commit('setPlayHistory', savePlay(song))
+}
+
+export const saveFavoriteList = function ({commit}, song) {
+  commit('setFavoriteList', saveFavorite(song))
+}
+
+export const deleteFavoriteList = function ({commit}, song) {
+  commit('setFavoriteList', deleteFavorite(song))
 }
